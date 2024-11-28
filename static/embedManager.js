@@ -233,7 +233,9 @@ class EmbedManager {
       }
     }
     if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+      console.log("event picked up");
       if (window.getSelection().type === 'Range') return // don't prevent copying text
+      console.log("didn't skip");
       e.preventDefault()
       if (this.currentEmbedType === 'iframe') {
         this.copyEmbed()
