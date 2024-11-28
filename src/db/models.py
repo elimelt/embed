@@ -2,7 +2,7 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
-class MarkdownDocument(BaseModel):
+class Document(BaseModel):
     uuid: str
     content: str
     auth_key: str

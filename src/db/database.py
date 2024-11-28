@@ -18,7 +18,7 @@ def init_db():
         cursor = conn.cursor()
         cursor.execute(
             """
-            CREATE TABLE IF NOT EXISTS markdown_documents (
+            CREATE TABLE IF NOT EXISTS documents (
                 uuid TEXT PRIMARY KEY,
                 content TEXT NOT NULL,
                 auth_key TEXT NOT NULL,

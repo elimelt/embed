@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = "markdown.db"
+    DATABASE_URL: str = "document.db"
     BASE_DIR: Path = Path(__file__).resolve().parent.parent
     TEMPLATES_DIR: Path = BASE_DIR / "templates"
     STATIC_DIR: Path = BASE_DIR / "static"

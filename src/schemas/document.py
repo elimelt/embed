@@ -1,19 +1,18 @@
 from pydantic import BaseModel
 from datetime import datetime
-from typing import Optional
 
 
-class MarkdownContent(BaseModel):
+class DocumentContent(BaseModel):
     content: str
 
 
-class MarkdownResponse(BaseModel):
+class DocumentResponse(BaseModel):
     uuid: str
     auth_key: str
     embed_url: str
 
 
-class MarkdownDocument(BaseModel):
+class Document(BaseModel):
     uuid: str
     content: str
     auth_key: str

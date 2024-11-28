@@ -1,7 +1,7 @@
 fastapi
 uvicorn
-markdown
 python-multipart
+markdown
 aiosqlite
 Jinja2
 pydantic-settings

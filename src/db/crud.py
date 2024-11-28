@@ -1,11 +1,10 @@
 from . import database
-from datetime import datetime
 import uuid
 import secrets
-from typing import Optional, List
+from typing import Optional
 
 
-class CRUDMarkdown:
+class CRUDDocument:
     @staticmethod
     def create(content: str) -> dict:
         embed_id = str(uuid.uuid4())
@@ -14,7 +13,7 @@ class CRUDMarkdown:
         with database.get_db() as conn:
             cursor = conn.cursor()
             cursor.execute(
-                "INSERT INTO markdown_documents (uuid, content, auth_key) VALUES (?, ?, ?)",
+                "INSERT INTO documents (uuid, content, auth_key) VALUES (?, ?, ?)",
                 (embed_id, content, auth_key),
             )
             conn.commit()
@@ -26,7 +25,7 @@ class CRUDMarkdown:
         with database.get_db() as conn:
             cursor = conn.cursor()
             cursor.execute(
-                "SELECT * FROM markdown_documents WHERE uuid = ?", (embed_id,)
+                "SELECT * FROM documents WHERE uuid = ?", (embed_id,)
             )
             result = cursor.fetchone()
 
@@ -39,7 +38,7 @@ class CRUDMarkdown:
         with database.get_db() as conn:
             cursor = conn.cursor()
             cursor.execute(
-                """UPDATE markdown_documents 
+                """UPDATE documents
                    SET content = ?, last_accessed = CURRENT_TIMESTAMP 
                    WHERE uuid = ?""",
                 (content, embed_id),
@@ -51,7 +50,7 @@ class CRUDMarkdown:
     def delete(embed_id: str) -> bool:
         with database.get_db() as conn:
             cursor = conn.cursor()
-            cursor.execute("DELETE FROM markdown_documents WHERE uuid = ?", (embed_id,))
+            cursor.execute("DELETE FROM documents WHERE uuid = ?", (embed_id,))
             deleted = cursor.rowcount > 0
             conn.commit()
             return deleted
@@ -61,7 +60,7 @@ class CRUDMarkdown:
         with database.get_db() as conn:
             cursor = conn.cursor()
             cursor.execute(
-                """DELETE FROM markdown_documents 
+                """DELETE FROM documents
                    WHERE last_accessed < datetime('now', '-? days')""",
                 (days,),
             )

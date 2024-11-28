@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
-from ...services.markdown import MarkdownService
+from ...services.document import DocumentService
 from ...config import settings
 from fastapi.templating import Jinja2Templates
 
@@ -15,8 +15,8 @@ async def read_root(request: Request):
 
 @router.get("/embed/{embed_id}", response_class=HTMLResponse)
 async def get_embed(embed_id: str, request: Request):
-    doc = MarkdownService.get_document(embed_id)
-    html_content = MarkdownService.render_markdown(doc["content"])
+    doc = DocumentService.get_document(embed_id)
+    html_content = DocumentService.render_markdown(doc["content"])
     return templates.TemplateResponse(
         "embed.html", {"request": request, "content": html_content}
     )
@@ -24,8 +24,8 @@ async def get_embed(embed_id: str, request: Request):
 
 @router.get("/view/{embed_id}", response_class=HTMLResponse)
 async def view_embed(embed_id: str, request: Request):
-    doc = MarkdownService.get_document(embed_id)
-    html_content = MarkdownService.render_markdown(doc["content"])
+    doc = DocumentService.get_document(embed_id)
+    html_content = DocumentService.render_markdown(doc["content"])
     return templates.TemplateResponse(
         "view.html", {"request": request, "content": html_content}
     )
