@@ -4,3 +4,4 @@ markdown
 python-multipart
 aiosqlite
 Jinja2
+pydantic-settings
