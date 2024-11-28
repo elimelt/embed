@@ -79,6 +79,14 @@ class EmbedManager {
         body: JSON.stringify({ content })
       })
 
+      const preview = document.getElementById('preview')
+      const embedCodeSection = document.getElementById('embed-code')
+
+      this.updateEmbedCode(data)
+
+      embedCodeSection.classList.remove('hidden')
+      preview.classList.add('hidden')
+
       await this.fetchAndRenderEmbedList()
     } catch (error) {
       console.error('Failed to update embed:', error)
@@ -204,7 +212,15 @@ class EmbedManager {
       const editor = document.getElementById('markdown-input')
       editor.value = data.content
       this.currentEmbedId = id
+
       this.adjustEditorHeight({ target: editor })
+
+      const preview = document.getElementById('preview')
+      const embedCodeSection = document.getElementById('embed-code')
+      this.updateEmbedCode(data)
+      embedCodeSection.classList.remove('hidden')
+      preview.classList.add('hidden')
+
       editor.focus()
     } catch (error) {
       console.error('Failed to load embed:', error)
