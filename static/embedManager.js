@@ -233,9 +233,7 @@ class EmbedManager {
       }
     }
     if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
-      console.log("event picked up");
       if (window.getSelection().type === 'Range') return // don't prevent copying text
-      console.log("didn't skip");
       e.preventDefault()
       if (this.currentEmbedType === 'iframe') {
         this.copyEmbed()
@@ -289,9 +287,6 @@ class EmbedManager {
       const start = editor.selectionStart
       const end = editor.selectionEnd
       const value = editor.value
-
-      console.log('start:', start, 'end:', end)
-      console.log('value:', value)
 
       if (e.shiftKey) {
         // handle shift+tab (remove indentation)
