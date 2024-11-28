@@ -79,14 +79,6 @@ class EmbedManager {
         body: JSON.stringify({ content })
       })
 
-      const preview = document.getElementById('preview')
-      const embedCodeSection = document.getElementById('embed-code')
-
-      this.updateEmbedCode(data)
-
-      embedCodeSection.classList.remove('hidden')
-      preview.classList.add('hidden')
-
       await this.fetchAndRenderEmbedList()
     } catch (error) {
       console.error('Failed to update embed:', error)
