@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block title %}Markdown Preview{% endblock %}
+
+{% block content %}
+<div class="markdown-body bg-white">
+  {{ content | safe }}
+</div>
+{% endblock %}

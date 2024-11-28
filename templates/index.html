@@ -1,0 +1,544 @@
+{% extends "base.html" %}
+
+{% block head %}
+<style>
+  .editor-container {
+    max-width: 900px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: white;
+  }
+
+  .preview-container {
+    border: 1px solid #f1f1f1;
+    border-radius: 0.75rem;
+    background: white;
+    overflow: hidden;
+  }
+
+  .markdown-input {
+    background: white;
+    border: none;
+    -moz-tab-size: 2;
+    tab-size: 2;
+    white-space: pre-wrap;
+    line-height: 1.6;
+  }
+
+  .markdown-input::placeholder {
+    color: #9CA3AF;
+  }
+
+  .markdown-input:focus {
+    outline: none;
+  }
+
+  .toolbar {
+    border-bottom: 1px solid #f1f1f1;
+    background: white;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+
+  }
+
+  .keyboard-shortcut {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-left: 0.5rem;
+    color: #9CA3AF;
+  }
+
+  .key {
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    background: #F3F4F6;
+    border: 1px solid #E5E7EB;
+    color: #6B7280;
+  }
+
+  .action-button {
+    transition: all 0.1s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .action-button:hover {
+    background: #F9FAFB;
+  }
+
+  .output-section {
+    border-top: 1px solid #f1f1f1;
+    animation: slideIn 0.2s ease-out;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .embed-container {
+    background: #F9FAFB;
+    border: 1px solid #f1f1f1;
+    position: relative;
+  }
+
+  /*  branding */
+  .brand-corner {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 20;
+  }
+
+  .brand-link {
+    color: #374151;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+  }
+
+  .brand-link:hover {
+    color: #111827;
+  }
+
+  .github-icon:hover {
+    transform: translateY(-1px);
+  }
+
+  .top-nav {
+    background: rgba(255, 255, 255, 0.95);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid #f1f1f1;
+    position: sticky;
+    top: 0;
+    z-index: 30;
+  }
+
+  .editor-container {
+    max-width: 900px;
+    margin: 0 auto;
+    min-height: calc(100vh - 4rem);
+    background: white;
+    position: relative;
+  }
+
+  .footer {
+    border-top: 1px solid #f1f1f1;
+    background: #FAFAFA;
+  }
+
+  .stats-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: #F9FAFB;
+    border: 1px solid #F3F4F6;
+    border-radius: 2rem;
+    font-size: 0.75rem;
+    color: #6B7280;
+  }
+
+  .stats-badge span {
+    color: #111827;
+    font-weight: 500;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- header kind of -->
+<div class="top-nav">
+  <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="/" class="text-gray-900 font-semibold text-sm">embed.md</a>
+      <div class="stats-badge">
+        Processing time: <span>~50ms</span>
+      </div>
+    </div>
+    <div class="flex items-center gap-4">
+      <a href="https://github.com/elimelt" target="_blank" rel="noopener noreferrer"
+        class="github-icon text-gray-600 hover:text-gray-900 transition-all">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path
+            d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+          </path>
+        </svg>
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="editor-container">
+  <!-- toolbar -->
+  <div class="toolbar px-4 py-2 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <button onclick="previewMarkdown()"
+        class="action-button px-3 py-1.5 text-sm text-gray-600 rounded-md hover:bg-gray-50">
+        Preview
+        <span class="keyboard-shortcut">
+          <span class="key">⌘</span><span class="key">P</span>
+        </span>
+      </button>
+      <button onclick="generateEmbed()"
+        class="action-button px-3 py-1.5 text-sm text-gray-600 rounded-md hover:bg-gray-50">
+        Generate Embed
+        <span class="keyboard-shortcut">
+          <span class="key">⌘</span><span class="key">⏎</span>
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <!-- editor -->
+  <div class="px-4 py-6">
+    <textarea id="markdown-input" class="markdown-input w-full min-h-[70vh] text-[15px] resize-none" placeholder="# Hello
+## World"></textarea>
+  </div>
+
+  <!-- preview section -->
+  <div id="preview" class="hidden output-section">
+    <div class="px-4 py-6">
+      <div class="text-sm text-gray-500 mb-3">Preview</div>
+      <div class="preview-container shadow-sm"></div>
+    </div>
+  </div>
+
+  <!-- embed code section -->
+  <div id="embed-code" class="hidden output-section">
+    <div class="px-4 py-6">
+      <div class="text-sm text-gray-500 mb-3">Share Options</div>
+
+      <!-- tab navigation -->
+      <div class="flex space-x-4 mb-4">
+        <button onclick="switchEmbedType('iframe')" id="iframe-tab"
+          class="text-sm px-3 py-2 rounded-md text-gray-600 bg-gray-50 hover:bg-gray-100">
+          Embed HTML
+        </button>
+        <button onclick="switchEmbedType('link')" id="link-tab"
+          class="text-sm px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100">
+          Direct Link
+        </button>
+      </div>
+
+      <!-- embed code container -->
+      <div id="iframe-content" class="relative">
+        <pre id="embed-text"
+          class="embed-container p-4 rounded-lg overflow-x-auto text-sm font-mono text-gray-600"></pre>
+        <button onclick="copyEmbed()" id="copy-button"
+          class="absolute top-2 right-2 px-3 py-1.5 text-xs bg-white border border-gray-200 rounded-md hover:bg-gray-50 focus:outline-none text-gray-600 shadow-sm">
+          Copy
+          <span class="keyboard-shortcut">
+            <span class="key">⌘</span><span class="key">C</span>
+          </span>
+        </button>
+      </div>
+
+      <!-- link container -->
+      <div id="link-content" class="relative hidden">
+        <pre id="link-text"
+          class="embed-container p-4 rounded-lg overflow-x-auto text-sm font-mono text-gray-600"></pre>
+        <button onclick="copyLink()" id="copy-link-button"
+          class="absolute top-2 right-2 px-3 py-1.5 text-xs bg-white border border-gray-200 rounded-md hover:bg-gray-50 focus:outline-none text-gray-600 shadow-sm">
+          Copy
+          <span class="keyboard-shortcut">
+            <span class="key">⌘</span><span class="key">C</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- footer -->
+  <footer class="footer py-8">
+    <div class="max-w-5xl mx-auto px-4">
+      <div class="flex justify-between items-center">
+        <div class="text-sm text-gray-500">
+          Built by <a href="https://elimelt.com" target="_blank" rel="noopener noreferrer"
+            class="text-gray-900 hover:underline">Elijah Melton</a>
+        </div>
+        <div class="flex items-center gap-6 text-sm text-gray-500">
+          <a href="https://github.com/elimelt/embed" target="_blank" rel="noopener noreferrer"
+            class="hover:text-gray-900">Source</a>
+          <a href="https://elimelt.com" target="_blank" rel="noopener noreferrer"
+            class="hover:text-gray-900">Portfolio</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <script>
+    let currentEmbedType = 'iframe';
+    let lastGeneratedData = null;
+    let processingTime = null;
+
+    function updateProcessingTime(time) {
+      const badge = document.querySelector('.stats-badge span');
+      processingTime = time;
+      badge.textContent = time ? `${time}ms` : '-- ms';
+    }
+
+    async function previewMarkdown() {
+      const startTime = performance.now();
+      const content = document.getElementById('markdown-input').value;
+
+      try {
+        const response = await fetch('/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content })
+        });
+        const data = await response.json();
+
+        // calculate latency
+        const endTime = performance.now();
+        const timeMs = Math.round(endTime - startTime);
+        updateProcessingTime(timeMs);
+
+        // update visibility
+        const preview = document.getElementById('preview');
+        const embedCode = document.getElementById('embed-code');
+
+        preview.querySelector('.preview-container').innerHTML =
+          `<iframe src="${data.embed_url}" width="100%" height="400px" frameborder="0" class="rounded-lg"></iframe>`;
+
+        preview.classList.remove('hidden');
+        embedCode.classList.add('hidden');
+      } catch (error) {
+        console.error('Preview failed:', error);
+      }
+    }
+
+    async function generateEmbed() {
+      const startTime = performance.now();
+      const content = document.getElementById('markdown-input').value;
+
+      try {
+        const response = await fetch('/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content })
+        });
+        const data = await response.json();
+        lastGeneratedData = data;
+
+        // calculate latency
+        const endTime = performance.now();
+        const timeMs = Math.round(endTime - startTime);
+        updateProcessingTime(timeMs);
+
+        // update visibility
+        const preview = document.getElementById('preview');
+        const embedCodeSection = document.getElementById('embed-code');
+
+        // set initial embed type
+        updateEmbedCode(data);
+
+        embedCodeSection.classList.remove('hidden');
+        preview.classList.add('hidden');
+
+        // set iframe tab as active initially
+        switchEmbedType('iframe');
+      } catch (error) {
+        console.error('Embed generation failed:', error);
+      }
+    }
+
+    function updateEmbedCode(data) {
+      const iframeCode = `<iframe src="${window.location.origin}/embed/${data.uuid}" width="100%" height="500px" frameborder="0"></iframe>`;
+      const directLink = `${window.location.origin}/view/${data.uuid}`;
+
+      document.getElementById('embed-text').textContent = iframeCode;
+      document.getElementById('link-text').textContent = directLink;
+    }
+
+    function switchEmbedType(type) {
+      currentEmbedType = type;
+
+      // update UI
+      const iframeTab = document.getElementById('iframe-tab');
+      const linkTab = document.getElementById('link-tab');
+      const iframeContent = document.getElementById('iframe-content');
+      const linkContent = document.getElementById('link-content');
+
+      if (type === 'iframe') {
+        iframeTab.classList.add('bg-gray-50');
+        linkTab.classList.remove('bg-gray-50');
+        iframeContent.classList.remove('hidden');
+        linkContent.classList.add('hidden');
+      } else {
+        linkTab.classList.add('bg-gray-50');
+        iframeTab.classList.remove('bg-gray-50');
+        linkContent.classList.remove('hidden');
+        iframeContent.classList.add('hidden');
+      }
+    }
+
+    async function copyEmbed() {
+      try {
+        await copyToClipboard(
+          document.getElementById('embed-text').textContent,
+          document.getElementById('copy-button')
+        );
+      } catch (error) {
+        console.error('Failed to copy embed code:', error);
+      }
+    }
+
+    async function copyLink() {
+      try {
+        await copyToClipboard(
+          document.getElementById('link-text').textContent,
+          document.getElementById('copy-link-button')
+        );
+      } catch (error) {
+        console.error('Failed to copy link:', error);
+      }
+    }
+
+    async function copyToClipboard(text, button) {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+
+      const originalText = button.innerHTML;
+      button.innerHTML = `
+    Copied
+    <span class="keyboard-shortcut">
+      <span class="key">⌘</span><span class="key">C</span>
+    </span>
+  `;
+      button.classList.add('text-green-600');
+
+      setTimeout(() => {
+        button.innerHTML = originalText;
+        button.classList.remove('text-green-600');
+      }, 2000);
+    }
+
+    document.getElementById('markdown-input').addEventListener('keydown', function (e) {
+      // tab key handling
+      if (e.key === 'Tab') {
+        e.preventDefault();
+
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+        const value = this.value;
+
+        if (e.shiftKey) {
+          // handle shift+tab (remove indentation)
+          if (start === end) {
+            // single line
+            const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+            if (value.slice(lineStart, lineStart + 2) === '  ') {
+              this.value = value.slice(0, lineStart) + value.slice(lineStart + 2);
+              this.selectionStart = this.selectionEnd = start - 2;
+            }
+          } else {
+            // multiple lines
+            const lines = value.slice(start, end).split('\n');
+            const newLines = lines.map(line => line.startsWith('  ') ? line.slice(2) : line);
+            const newText = newLines.join('\n');
+            this.value = value.slice(0, start) + newText + value.slice(end);
+            this.selectionStart = start;
+            this.selectionEnd = start + newText.length;
+          }
+        } else {
+          // handle tab (add indentation)
+          if (start === end) {
+            // single line
+            const spaces = '  ';
+            this.value = value.slice(0, start) + spaces + value.slice(end);
+            this.selectionStart = this.selectionEnd = start + 2;
+          } else {
+            // multiple lines
+            const lines = value.slice(start, end).split('\n');
+            const newLines = lines.map(line => '  ' + line);
+            const newText = newLines.join('\n');
+            this.value = value.slice(0, start) + newText + value.slice(end);
+            this.selectionStart = start;
+            this.selectionEnd = start + newText.length;
+          }
+        }
+      }
+    });
+
+    // automatic height adjustment
+    document.getElementById('markdown-input').addEventListener('input', function () {
+      this.style.height = 'auto';
+      this.style.height = Math.max(256, this.scrollHeight) + 'px';
+    });
+
+    // preserve tab indentation when user presses enter
+    document.getElementById('markdown-input').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        const start = this.selectionStart;
+        const value = this.value;
+        const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+        const line = value.slice(lineStart, start);
+        const indent = line.match(/^\s*/)[0];
+
+        if (indent) {
+          e.preventDefault();
+          const newText = '\n' + indent;
+          this.value = value.slice(0, start) + newText + value.slice(this.selectionEnd);
+          this.selectionStart = this.selectionEnd = start + newText.length;
+        }
+      }
+    });
+
+    document.addEventListener('keydown', function (e) {
+      // Ctrl/Cmd + P to preview
+      if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+        e.preventDefault();
+        previewMarkdown();
+      }
+
+      // Ctrl/Cmd + Enter to generate embed
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        generateEmbed();
+      }
+
+      // Ctrl/Cmd + C to copy embed code if no text is selected
+      if ((e.ctrlKey || e.metaKey) && e.key === 'c' && window.getSelection().type !== 'Range') {
+        e.preventDefault();
+
+        if (currentEmbedType === 'iframe') {
+          copyEmbed();
+        } else {
+          copyLink();
+        }
+      }
+    });
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+      updateProcessingTime(null);  // "-- ms" initially
+      const input = document.getElementById('markdown-input');
+      input.focus();
+      input.style.height = 'auto';
+    });
+
+  </script>
+  {% endblock %}
