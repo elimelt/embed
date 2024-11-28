@@ -233,7 +233,7 @@ class EmbedManager {
       }
     }
     if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
-      if (window.getSelection().toString()) return // don't prevent copying text
+      if (window.getSelection().type === 'Range') return // don't prevent copying text
       e.preventDefault()
       if (this.currentEmbedType === 'iframe') {
         this.copyEmbed()
